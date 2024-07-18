@@ -228,8 +228,60 @@ class StoryImageState extends State<StoryImage> {
   }
 }
 
+class ImageGifLoader {
+  ui.Codec? frames;
+
+  String url;
+
+  Map<String, dynamic>? requestHeaders;
+
+  LoadState state = LoadState.loading; // by default
+
+  ImageGifLoader(this.url, {this.requestHeaders});
+
+  /// Load image from disk cache first, if not found then load from network.
+  /// `onComplete` is called when [imageBytes] become available.
+  void loadImage(VoidCallback onComplete) {
+    if (this.frames != null) {
+      this.state = LoadState.success;
+      onComplete();
+    }
+
+    final fileStream = DefaultCacheManager().getFileStream(this.url,
+        headers: this.requestHeaders as Map<String, String>?);
+
+    fileStream.listen(
+      (fileResponse) {
+        if (!(fileResponse is FileInfo)) return;
+        // the reason for this is that, when the cache manager fetches
+        // the image again from network, the provided `onComplete` should
+        // not be called again
+        if (this.frames != null) {
+          return;
+        }
+
+        final imageBytes = fileResponse.file.readAsBytesSync();
+
+        this.state = LoadState.success;
+
+        ui.instantiateImageCodec(imageBytes).then((codec) {
+          this.frames = codec;
+          onComplete();
+        }, onError: (error) {
+          this.state = LoadState.failure;
+          onComplete();
+        });
+      },
+      onError: (error) {
+        this.state = LoadState.failure;
+        onComplete();
+      },
+    );
+  }
+}
+
 class StoryImageGif extends StatefulWidget {
-  final GifView imageLoader;
+  final ImageLoader imageLoader;
 
   final BoxFit? fit;
 
@@ -257,7 +309,10 @@ class StoryImageGif extends StatefulWidget {
     Key? key,
   }) {
     return StoryImageGif(
-      GifView.network(url),
+      ImageLoader(
+        url,
+        requestHeaders: requestHeaders,
+      ),
       controller: controller,
       fit: fit,
       loadingWidget: loadingWidget,
@@ -350,10 +405,14 @@ class StoryImageGifState extends State<StoryImage> {
   Widget getContentView() {
     switch (widget.imageLoader.state) {
       case LoadState.success:
-        return RawImage(
-          image: this.currentFrame,
+        return GifView(
+          image: this.currentFrame as ImageProvider,
           fit: widget.fit,
         );
+      // RawImage(
+      //   image: this.currentFrame,
+      //   fit: widget.fit,
+      // );
       case LoadState.failure:
         return Center(
             child: widget.errorWidget ??
