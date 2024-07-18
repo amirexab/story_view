@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
+import 'package:gif_view/gif_view.dart';
 import 'package:story_view/story_view.dart';
 
 import '../controller/story_controller.dart';
@@ -185,14 +186,7 @@ class StoryItem {
           color: Colors.black,
           child: Stack(
             children: <Widget>[
-              StoryImageGif.url(
-                url,
-                controller: controller,
-                fit: imageFit,
-                requestHeaders: requestHeaders,
-                loadingWidget: loadingWidget,
-                errorWidget: errorWidget,
-              ),
+              GifView.network(url),
               SafeArea(
                 child: Align(
                   alignment: Alignment.bottomCenter,
