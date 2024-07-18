@@ -325,7 +325,7 @@ class StoryImageGif extends StatefulWidget {
   State<StatefulWidget> createState() => StoryImageGifState();
 }
 
-class StoryImageGifState extends State<StoryImage> {
+class StoryImageGifState extends State<StoryImageGif> {
   ui.Image? currentFrame;
 
   Timer? _timer;
