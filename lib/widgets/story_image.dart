@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class ImageLoader {
         headers: this.requestHeaders as Map<String, String>?);
 
     fileStream.listen(
-      (fileResponse) {
+          (fileResponse) {
         if (!(fileResponse is FileInfo)) return;
         // the reason for this is that, when the cache manager fetches
         // the image again from network, the provided `onComplete` should
@@ -74,8 +75,7 @@ class StoryImage extends StatefulWidget {
   final Widget? loadingWidget;
   final Widget? errorWidget;
 
-  StoryImage(
-    this.imageLoader, {
+  StoryImage(this.imageLoader, {
     Key? key,
     this.controller,
     this.fit,
@@ -84,8 +84,7 @@ class StoryImage extends StatefulWidget {
   }) : super(key: key ?? UniqueKey());
 
   /// Use this shorthand to fetch images/gifs from the provided [url]
-  factory StoryImage.url(
-    String url, {
+  factory StoryImage.url(String url, {
     StoryController? controller,
     Map<String, dynamic>? requestHeaders,
     BoxFit fit = BoxFit.fitWidth,
@@ -124,17 +123,17 @@ class StoryImageState extends State<StoryImage> {
     if (widget.controller != null) {
       this._streamSubscription =
           widget.controller!.playbackNotifier.listen((playbackState) {
-        // for the case of gifs we need to pause/play
-        if (widget.imageLoader.frames == null) {
-          return;
-        }
+            // for the case of gifs we need to pause/play
+            if (widget.imageLoader.frames == null) {
+              return;
+            }
 
-        if (playbackState == PlaybackState.pause) {
-          this._timer?.cancel();
-        } else {
-          forward();
-        }
-      });
+            if (playbackState == PlaybackState.pause) {
+              this._timer?.cancel();
+            } else {
+              forward();
+            }
+          });
     }
 
     widget.controller?.pause();
@@ -251,7 +250,7 @@ class ImageGifLoader {
         headers: this.requestHeaders as Map<String, String>?);
 
     fileStream.listen(
-      (fileResponse) {
+          (fileResponse) {
         if (!(fileResponse is FileInfo)) return;
         // the reason for this is that, when the cache manager fetches
         // the image again from network, the provided `onComplete` should
@@ -289,8 +288,7 @@ class StoryImageGif extends StatefulWidget {
   final Widget? loadingWidget;
   final Widget? errorWidget;
 
-  StoryImageGif(
-    this.imageLoader, {
+  StoryImageGif(this.imageLoader, {
     Key? key,
     this.controller,
     this.fit,
@@ -299,8 +297,7 @@ class StoryImageGif extends StatefulWidget {
   }) : super(key: key ?? UniqueKey());
 
   /// Use this shorthand to fetch images/gifs from the provided [url]
-  factory StoryImageGif.url(
-    String url, {
+  factory StoryImageGif.url(String url, {
     StoryController? controller,
     Map<String, dynamic>? requestHeaders,
     BoxFit fit = BoxFit.fitWidth,
@@ -327,6 +324,7 @@ class StoryImageGif extends StatefulWidget {
 
 class StoryImageGifState extends State<StoryImageGif> {
   ui.Image? currentFrame;
+  Uint8List? audioUnit8List;
 
   Timer? _timer;
 
@@ -339,17 +337,17 @@ class StoryImageGifState extends State<StoryImageGif> {
     if (widget.controller != null) {
       this._streamSubscription =
           widget.controller!.playbackNotifier.listen((playbackState) {
-        // for the case of gifs we need to pause/play
-        if (widget.imageLoader.frames == null) {
-          return;
-        }
+            // for the case of gifs we need to pause/play
+            if (widget.imageLoader.frames == null) {
+              return;
+            }
 
-        if (playbackState == PlaybackState.pause) {
-          this._timer?.cancel();
-        } else {
-          forward();
-        }
-      });
+            if (playbackState == PlaybackState.pause) {
+              this._timer?.cancel();
+            } else {
+              forward();
+            }
+          });
     }
 
     widget.controller?.pause();
@@ -357,6 +355,11 @@ class StoryImageGifState extends State<StoryImageGif> {
     widget.imageLoader.loadImage(() async {
       if (mounted) {
         if (widget.imageLoader.state == LoadState.success) {
+          final audioByteData = await this.currentFrame?.toByteData();
+
+          final audioUnit8List = audioByteData?.buffer.asUint8List(
+            audioByteData.offsetInBytes, audioByteData.lengthInBytes,);
+
           widget.controller?.play();
           forward();
         } else {
@@ -405,14 +408,11 @@ class StoryImageGifState extends State<StoryImageGif> {
   Widget getContentView() {
     switch (widget.imageLoader.state) {
       case LoadState.success:
-        return GifView(
-          image: this.currentFrame as ImageProvider,
+
+        return GifView.memory(
+          audioUnit8List!,
           fit: widget.fit,
         );
-      // RawImage(
-      //   image: this.currentFrame,
-      //   fit: widget.fit,
-      // );
       case LoadState.failure:
         return Center(
             child: widget.errorWidget ??
