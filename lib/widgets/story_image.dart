@@ -322,7 +322,7 @@ class StoryImageGif extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => StoryImageState();
+  State<StatefulWidget> createState() => StoryImageGifState();
 }
 
 class StoryImageGifState extends State<StoryImage> {
