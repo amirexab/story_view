@@ -359,13 +359,6 @@ class StoryImageGifState extends State<StoryImageGif> {
     widget.imageLoader.loadImage(() async {
       if (mounted) {
         if (widget.imageLoader.state == LoadState.success) {
-          final audioByteData = await this.currentFrame?.toByteData();
-
-          audioUnit8List = audioByteData?.buffer.asUint8List(
-            audioByteData.offsetInBytes,
-            audioByteData.lengthInBytes,
-          );
-
           widget.controller?.play();
           forward();
         } else {
@@ -403,6 +396,13 @@ class StoryImageGifState extends State<StoryImageGif> {
     final nextFrame = await widget.imageLoader.frames!.getNextFrame();
 
     this.currentFrame = nextFrame.image;
+
+    final audioByteData = await this.currentFrame?.toByteData();
+
+    audioUnit8List = audioByteData?.buffer.asUint8List(
+      audioByteData.offsetInBytes,
+      audioByteData.lengthInBytes,
+    );
 
     if (nextFrame.duration > Duration(milliseconds: 0)) {
       this._timer = Timer(nextFrame.duration, forward);
