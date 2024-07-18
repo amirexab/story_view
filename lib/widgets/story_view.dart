@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
+import 'package:story_view/story_view.dart';
 
 import '../controller/story_controller.dart';
 import '../utils.dart';
@@ -161,6 +162,64 @@ class StoryItem {
       duration: duration ?? Duration(seconds: 3),
     );
   }
+
+  factory StoryItem.pageImageGIF({
+    required String url,
+    required StoryController controller,
+    Key? key,
+    BoxFit imageFit = BoxFit.fitWidth,
+    Text? caption,
+    bool shown = false,
+    Map<String, dynamic>? requestHeaders,
+    Widget? loadingWidget,
+    Widget? errorWidget,
+    EdgeInsetsGeometry? captionOuterPadding,
+    Duration? duration,
+    GestureTapCallback? onTap,
+  }) {
+    return StoryItem(
+      InkWell(
+        onTap: onTap,
+        child: Container(
+          key: key,
+          color: Colors.black,
+          child: Stack(
+            children: <Widget>[
+              StoryImageGif.url(
+                url,
+                controller: controller,
+                fit: imageFit,
+                requestHeaders: requestHeaders,
+                loadingWidget: loadingWidget,
+                errorWidget: errorWidget,
+              ),
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(
+                      bottom: 24,
+                    ),
+                    padding: captionOuterPadding ?? EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
+                    color: caption != null ? Colors.black54 : Colors
+                        .transparent,
+                    child: caption ?? const SizedBox.shrink(),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+      shown: shown,
+      duration: duration ?? Duration(seconds: 3),
+    );
+  }
+
 
   /// Shorthand for creating inline image. [controller] should be same instance as
   /// one passed to the `StoryView`
