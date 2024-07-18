@@ -388,7 +388,6 @@ class StoryView extends StatefulWidget {
   /// want to listen to such event, do not provide it. For instance,
   /// for inline stories inside ListViews, it is preferrable to not to
   /// provide this callback so as to enable scroll events on the list view.
-  final Function(Direction?)? onVerticalSwipeComplete;
 
   /// Callback for when a story and it index is currently being shown.
   final void Function(StoryItem storyItem, int index)? onStoryShow;
@@ -427,7 +426,6 @@ class StoryView extends StatefulWidget {
     this.progressPosition = ProgressPosition.top,
     this.repeat = false,
     this.inline = false,
-    this.onVerticalSwipeComplete,
     this.indicatorColor,
     this.indicatorForegroundColor,
     this.indicatorHeight = IndicatorHeight.large,
@@ -664,68 +662,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               ),
             ),
           ),
-          // Align(
-          //     alignment: Alignment.centerRight,
-          //     heightFactor: 1,
-          //     child: GestureDetector(
-          //       onTapDown: (details) {
-          //         widget.controller.pause();
-          //       },
-          //       onTapCancel: () {
-          //         widget.controller.play();
-          //       },
-          //       onTapUp: (details) {
-          //         // if debounce timed out (not active) then continue anim
-          //         if (_nextDebouncer?.isActive == false) {
-          //           widget.controller.play();
-          //         } else {
-          //           widget.controller.next();
-          //         }
-          //       },
-          //       onVerticalDragStart: widget.onVerticalSwipeComplete == null
-          //           ? null
-          //           : (details) {
-          //         widget.controller.pause();
-          //       },
-          //       onVerticalDragCancel: widget.onVerticalSwipeComplete == null
-          //           ? null
-          //           : () {
-          //         widget.controller.play();
-          //       },
-          //       onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
-          //           ? null
-          //           : (details) {
-          //         if (verticalDragInfo == null) {
-          //           verticalDragInfo = VerticalDragInfo();
-          //         }
-          //
-          //         verticalDragInfo!.update(details.primaryDelta!);
-          //
-          //         // TODO: provide callback interface for animation purposes
-          //       },
-          //       onVerticalDragEnd: widget.onVerticalSwipeComplete == null
-          //           ? null
-          //           : (details) {
-          //         widget.controller.play();
-          //         // finish up drag cycle
-          //         if (!verticalDragInfo!.cancel &&
-          //             widget.onVerticalSwipeComplete != null) {
-          //           widget.onVerticalSwipeComplete!(
-          //               verticalDragInfo!.direction);
-          //         }
-          //
-          //         verticalDragInfo = null;
-          //       },
-          //     )),
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   heightFactor: 1,
-          //   child: SizedBox(
-          //       child: GestureDetector(onTap: () {
-          //         widget.controller.previous();
-          //       }),
-          //       width: 70),
-          // ),
         ],
       ),
     );
